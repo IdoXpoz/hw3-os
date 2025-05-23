@@ -43,13 +43,13 @@ typedef struct {
 
 // Helper function to find a channel by ID in a given slot (checked, good)
 static channel* find_channel(message_slot* slot, unsigned int channel_id) {
-    channel* current = slot->channels_list_head;
+    channel* current_channel = slot->channels_list_head;
     
-    while (current != NULL) {
-        if (current->id == channel_id) {
-            return current;
+    while (current_channel != NULL) {
+        if (current_channel->id == channel_id) {
+            return current_channel;
         }
-        current = current->next;
+        current_channel = current_channel->next;
     }
     
     return NULL;
@@ -295,23 +295,23 @@ static int __init message_slot_init(void) {
 static void __exit message_slot_exit(void) {
     int i;
     message_slot *slot;
-    channel *current, *next;
+    channel *current_channel, *next;
     
     // Free all allocated memory
     for (i = 0; i < 256; ++i) {
         slot = slots[i];
         if (slot != NULL) {
             // Free all channels in the list
-            current = slot->channels_list_head;
-            while (current != NULL) {
-                next = current->next;  
+            current_channel = slot->channels_list_head;
+            while (current_channel != NULL) {
+                next = current_channel->next;  
                 
-                if (current->message != NULL) {
-                    kfree(current->message);
+                if (current_channel->message != NULL) {
+                    kfree(current_channel->message);
                 }
                 
-                kfree(current);
-                current = next;
+                kfree(current_channel);
+                current_channel = next;
             }
             
             kfree(slot);
