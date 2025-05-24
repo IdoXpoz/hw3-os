@@ -21,6 +21,11 @@ int main(int argc, char *argv[]) {
     }
     
     channel_id = (unsigned int)atoi(argv[2]);
+
+    if (channel_id == 0) {
+        fprintf(stderr, "Channel ID must be a non-zero integer.\n");
+        exit(1);
+    }
     
     // Open message slot device file
     fd = open(argv[1], O_RDWR);
@@ -49,7 +54,7 @@ int main(int argc, char *argv[]) {
     
     // Write message to stdout
     result = write(STDOUT_FILENO, buffer, bytes_read);
-    if (result < 0) {
+    if (result < 0 || result != bytes_read) {
         perror("Failed to write to stdout");
         exit(1);
     }

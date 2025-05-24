@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     
     // Write the message
     result = write(fd, message, message_len); // sending the message len removes the null char
-    if (result < 0) {
+    if (result < 0 || result != message_len) {
         perror("Failed to write message");
         close(fd);
         exit(1);
