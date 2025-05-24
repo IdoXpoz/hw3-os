@@ -1,6 +1,8 @@
 #!/bin/bash
 echo "Setting up message slot testing environment..."
 
+
+
 # Load kernel module
 echo "Loading kernel module..."
 sudo insmod message_slot.ko

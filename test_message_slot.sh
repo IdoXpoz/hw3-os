@@ -109,6 +109,48 @@ run_test "Complex censorship test" \
     "./message_sender /dev/slot0 50 1 'abcdefghijk' && ./message_reader /dev/slot0 50" \
     "ab#de#gh#jk"
 
+# Test 10: Wrong number of arguments (should fail)
+run_test "Sender wrong number of arguments" "./message_sender /dev/slot0 1 0" "ERROR"
+run_test "Reader wrong number of arguments" "./message_reader /dev/slot0" "ERROR"
+
+# Test 11: Non-existent device file (should fail)
+run_test "Sender non-existent device file" "./message_sender /dev/nonexistent 1 0 'test'" "ERROR"
+run_test "Reader non-existent device file" "./message_reader /dev/nonexistent 1" "ERROR"
+
+# Test 12: Multiple devices
+./message_sender /dev/slot0 1 0 "Device 0 message" 2>/dev/null
+./message_sender /dev/slot1 1 0 "Device 1 message" 2>/dev/null
+./message_sender /dev/slot2 1 0 "Device 2 message" 2>/dev/null
+run_test "Multiple devices - slot0" "./message_reader /dev/slot0 1" "Device 0 message"
+run_test "Multiple devices - slot1" "./message_reader /dev/slot1 1" "Device 1 message"
+run_test "Multiple devices - slot2" "./message_reader /dev/slot2 1" "Device 2 message"
+
+# Test 13: Various message sizes
+./message_sender /dev/slot0 1 0 "a" 2>/dev/null
+run_test "Message size 1" "./message_reader /dev/slot0 1" "a"
+./message_sender /dev/slot0 2 0 "$(python3 -c 'print("b" * 50)')" 2>/dev/null
+run_test "Message size 50" "./message_reader /dev/slot0 2" "$(python3 -c 'print("b" * 50)')"
+./message_sender /dev/slot0 3 0 "$(python3 -c 'print("c" * 100)')" 2>/dev/null
+run_test "Message size 100" "./message_reader /dev/slot0 3" "$(python3 -c 'print("c" * 100)')"
+
+# Test 14: Numeric censorship pattern
+./message_sender /dev/slot0 2 1 "123456789" 2>/dev/null
+run_test "Censorship pattern numeric" "./message_reader /dev/slot0 2" "12#45#78#"
+
+# Test 15: Many channels
+for i in {1..50}; do
+    ./message_sender /dev/slot0 $i 0 "Message for channel $i" 2>/dev/null
+done
+for i in {1..50}; do
+    run_test "Many channels - channel $i" "./message_reader /dev/slot0 $i" "Message for channel $i"
+done
+
+# Test 16: Large channel IDs
+./message_sender /dev/slot0 1000000 0 "Large channel ID" 2>/dev/null
+run_test "Large channel ID" "./message_reader /dev/slot0 1000000" "Large channel ID"
+./message_sender /dev/slot0 4294967295 0 "Max channel ID" 2>/dev/null
+run_test "Max channel ID" "./message_reader /dev/slot0 4294967295" "Max channel ID"
+
 # Summary
 echo -e "\n${YELLOW}=== Test Summary ===${NC}"
 echo -e "${GREEN}Passed: $PASS_COUNT${NC}"
