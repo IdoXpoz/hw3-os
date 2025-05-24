@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Set the channel id
-    result = ioctl(fd, MSG_SLOT_CHANNEL, channel_id);
+    result = ioctl(fd, MSG_SLOT_CHANNEL, &channel_id);
     if (result < 0) {
         perror("Failed to set channel id");
         close(fd);
