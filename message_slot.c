@@ -215,7 +215,6 @@ static ssize_t device_read(struct file *file, char *buffer, size_t length, loff_
 
 static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
     file_data *fd_data = (file_data*)file->private_data;
-    unsigned int param;
     
     // Check if private_data exists
     if (fd_data == NULL) {
@@ -229,14 +228,14 @@ static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     
     if (cmd == MSG_SLOT_CHANNEL) {
         // Validate channel ID (must be non-zero)
-        if (param == 0) {
+        if (arg == 0) {
             return -EINVAL;
         }
         
-        fd_data->channel_id = param;
+        fd_data->channel_id = arg;
     } else if (cmd == MSG_SLOT_SET_CEN) {
         // Set censorship mode: 0 = disabled, non-zero = enabled
-        fd_data->is_censored = (param != 0) ? 1 : 0;
+        fd_data->is_censored = (arg != 0) ? 1 : 0;
     }
     
     return 0;
