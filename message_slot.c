@@ -15,7 +15,6 @@
 
 MODULE_LICENSE("GPL");
 
-// Structure to represent a message channel with standard linked list
 typedef struct channel_struct {
     unsigned int id;                  // Channel ID
     char* message;                    // Message content
@@ -23,7 +22,6 @@ typedef struct channel_struct {
     struct channel_struct* next;      // Pointer to next channel
 } channel;
 
-// Structure to represent a message slot device
 typedef struct {
     unsigned int minor;               // Minor number
     channel* channels_list_head;      // Pointer to first channel in the list
@@ -41,7 +39,6 @@ typedef struct {
 
 //================== HELPER FUNCTIONS ===========================
 
-// Helper function to find a channel by ID in a given slot (checked, good)
 static channel* find_channel(message_slot* slot, unsigned int channel_id) {
     channel* current_channel = slot->channels_list_head;
     
@@ -55,7 +52,6 @@ static channel* find_channel(message_slot* slot, unsigned int channel_id) {
     return NULL;
 }
 
-// Apply censorship to a message (modify every 3rd character) (checked, good)
 static void apply_censorship(char* message, unsigned int size) {
     unsigned int i;
     for (i = 2; i < size; i += 3) {
@@ -65,7 +61,6 @@ static void apply_censorship(char* message, unsigned int size) {
 
 //================== DEVICE FUNCTIONS ===========================
 
-// (checked, good)
 static int device_open(struct inode *inode, struct file *file) {
     unsigned int minor = iminor(inode);
     file_data *fd_data;
@@ -103,8 +98,6 @@ static int device_open(struct inode *inode, struct file *file) {
     return 0;
 }
 
-// remove the file_data structure from the file's private data
-// and free the memory allocated for it (checked, good)
 static int device_release(struct inode *inode, struct file *file) {
     if (file->private_data) {
         kfree(file->private_data);
@@ -113,7 +106,6 @@ static int device_release(struct inode *inode, struct file *file) {
     return 0;
 }
 
-// (checked, good)
 static ssize_t device_write(struct file *file, const char *buffer, size_t length, loff_t *offset) {
     file_data *fd_data = (file_data*)file->private_data;
     message_slot *slot;
@@ -190,7 +182,7 @@ static ssize_t device_write(struct file *file, const char *buffer, size_t length
     return length;
 }
 
-// (checked, good)
+
 static ssize_t device_read(struct file *file, char *buffer, size_t length, loff_t *offset) {
     file_data *fd_data = (file_data*)file->private_data;
     message_slot *slot;
@@ -232,8 +224,6 @@ static ssize_t device_read(struct file *file, char *buffer, size_t length, loff_
     return chan->msg_size;
 }
 
-
-// (checked, good)
 static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
     file_data *fd_data = (file_data*)file->private_data;
     unsigned int param;
@@ -268,7 +258,6 @@ static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     return 0;
 }
 
-// (checked, good)
 static struct file_operations device_fops = {
     .owner = THIS_MODULE,
     .open = device_open,
@@ -278,7 +267,6 @@ static struct file_operations device_fops = {
     .write = device_write
 };
 
-// (checked, good)
 static int __init message_slot_init(void) {
     int rc = register_chrdev(MAJOR_NUM, DEVICE_NAME, &device_fops);
     
@@ -291,7 +279,6 @@ static int __init message_slot_init(void) {
     return 0;
 }
 
-// 
 static void __exit message_slot_exit(void) {
     int i;
     message_slot *slot;
