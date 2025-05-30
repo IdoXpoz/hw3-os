@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Set censorship mode
-    result = ioctl(fd, MSG_SLOT_SET_CEN, &censorship_mode);
+    result = ioctl(fd, MSG_SLOT_SET_CEN, censorship_mode);
     if (result < 0) {
         perror("Failed to set censorship mode");
         close(fd);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Set channel id
-    result = ioctl(fd, MSG_SLOT_CHANNEL, &channel_id);
+    result = ioctl(fd, MSG_SLOT_CHANNEL, channel_id);
     if (result < 0) {
         perror("Failed to set channel id");
         close(fd);

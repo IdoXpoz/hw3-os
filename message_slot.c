@@ -160,12 +160,6 @@ static ssize_t device_write(struct file *file, const char *buffer, size_t length
         return -ENOMEM;
     }
     
-    // Copy the message from user space (we need to save the msg in kernel space)
-    if (copy_from_user(new_message, buffer, length)) {
-        kfree(new_message);
-        return -EFAULT;
-    }
-    
     // Apply censorship if enabled
     if (fd_data->is_censored) {
         apply_censorship(new_message, length);
@@ -216,11 +210,6 @@ static ssize_t device_read(struct file *file, char *buffer, size_t length, loff_
         return -ENOSPC;
     }
     
-    // Copy the message to user space
-    if (copy_to_user(buffer, chan->message, chan->msg_size)) {
-        return -EFAULT;
-    }
-    
     return chan->msg_size;
 }
 
@@ -236,11 +225,6 @@ static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
     // Verify that cmd is valid
     if (cmd != MSG_SLOT_CHANNEL && cmd != MSG_SLOT_SET_CEN) {
         return -EINVAL;
-    }
-    
-    // Get the parameter from user space
-    if (copy_from_user(&param, (unsigned int*)arg, sizeof(unsigned int))) {
-        return -EFAULT;
     }
     
     if (cmd == MSG_SLOT_CHANNEL) {
